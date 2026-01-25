@@ -16,6 +16,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/BentoGrid";
+import GithubHeatmap from "@/components/GithubHeatmap";
 import content from "../../content.json";
 
 export default function Home() {
@@ -363,6 +364,11 @@ export default function Home() {
             className="md:col-span-1" // Adjusted to fit grid flow
             href={`mailto:${personal.email}`}
           />
+
+          {/* GitHub Heatmap */}
+          <div className="md:col-span-3 border-2 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden group">
+            <GithubHeatmap username={personal.github.split("/").pop() || "SohamShirke473"} />
+          </div>
         </BentoGrid>
 
         <footer className="text-center py-16 border-t-4 border-black">
