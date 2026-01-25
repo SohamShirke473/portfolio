@@ -8,6 +8,7 @@
     "x": "https://x.com/sohamshirke304",
     "about": "Passionate Computer Engineering student at TSEC with a strong focus on full-stack development. I love building scalable applications and exploring new technologies. Constantly learning and pushing boundaries in the dev world.",
     "resumeUrl": "/resume.pdf",
+    "location": "Mumbai, Worli",
     "profileImage": "/WhatsApp Image 2026-01-25 at 12.53.53.jpeg"
   },
   "education": [
@@ -29,7 +30,13 @@
   "projects": [
     {
       "title": "Google Doc Clone",
-      "technologies": ["TypeScript", "Next.js", "Clerk", "Convex", "Zustand"],
+      "technologies": [
+        "TypeScript",
+        "Next.js",
+        "Clerk",
+        "Convex",
+        "Zustand"
+      ],
       "description": "Built a Google Docs–style collaborative editor using Next.js with a rich text editor, real-time multi-user collaboration, document management, authentication via Clerk, and data persistence with Convex, featuring a modern responsive UI.",
       "image": "/Screenshot 2026-01-25 at 12.50.11 PM.png",
       "liveUrl": "https://google-doc-clone-five.vercel.app",
@@ -51,7 +58,12 @@
     },
     {
       "title": "Wanderlust",
-      "technologies": ["TypeScript", "Next.js", "shadcn/ui", "Tailwind CSS"],
+      "technologies": [
+        "TypeScript",
+        "Next.js",
+        "shadcn/ui",
+        "Tailwind CSS"
+      ],
       "description": "Built a modern and responsive travel website using Next.js, Tailwind CSS, Aceternity UI, and shadcn/ui, featuring smooth animations, clean layouts, and an engaging, user-friendly experience.",
       "image": null,
       "liveUrl": null,
@@ -67,9 +79,22 @@
       "JavaScript",
       "TypeScript"
     ],
-    "frameworks": ["Express", "Next.js", "React", "Node.js"],
-    "databases": ["MongoDB", "PostgreSQL", "Redis"],
-    "tools": ["Git", "GitHub", "Docker"]
+    "frameworks": [
+      "Express",
+      "Next.js",
+      "React",
+      "Node.js"
+    ],
+    "databases": [
+      "MongoDB",
+      "PostgreSQL",
+      "Redis"
+    ],
+    "tools": [
+      "Git",
+      "GitHub",
+      "Docker"
+    ]
   },
   "achievements": [
     {

@@ -13,6 +13,7 @@ import {
   Terminal,
   Twitter,
   User,
+  MapPin,
 } from "lucide-react";
 import { BentoGrid, BentoGridItem } from "@/components/BentoGrid";
 import content from "../../content.json";
@@ -33,38 +34,44 @@ export default function Home() {
           <BentoGridItem
             title={personal.name}
             description={
-              <div className="flex flex-wrap gap-2 mt-2">
-                <a
-                  href={personal.resumeUrl}
-                  target="_blank"
-                  className="px-3 py-1.5 border-2 border-black bg-main font-heading text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                >
-                  RESUME
-                </a>
-                <div className="flex gap-2">
+              <div className="flex flex-col gap-2 mt-2">
+                <div className="flex items-center gap-2 text-sm font-bold opacity-70">
+                  <MapPin className="w-4 h-4" />
+                  {personal.location}
+                </div>
+                <div className="flex flex-wrap gap-2">
                   <a
-                    href={personal.github}
+                    href={personal.resumeUrl}
                     target="_blank"
-                    className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                    className="px-3 py-1.5 border-2 border-black bg-main font-heading text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
                   >
-                    <Github className="w-4 h-4" />
+                    RESUME
                   </a>
-                  <a
-                    href={personal.linkedin}
-                    target="_blank"
-                    className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                  >
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                  {personal.x && (
+                  <div className="flex gap-2">
                     <a
-                      href={personal.x}
+                      href={personal.github}
                       target="_blank"
                       className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
                     >
-                      <Twitter className="w-4 h-4" />
+                      <Github className="w-4 h-4" />
                     </a>
-                  )}
+                    <a
+                      href={personal.linkedin}
+                      target="_blank"
+                      className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                    {personal.x && (
+                      <a
+                        href={personal.x}
+                        target="_blank"
+                        className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
+                      >
+                        <Twitter className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             }
