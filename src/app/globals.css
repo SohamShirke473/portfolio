@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -15,11 +14,11 @@
   --ring: oklch(0% 0 0);
   --overlay: oklch(0% 0 0 / 0.8);
   --shadow: 4px 4px 0px 0px var(--border);
-  --chart-1: #00C8F0;
-  --chart-2: #FF7A05;
-  --chart-3: #7A83FF;
-  --chart-4: #FF4D50;
-  --chart-5: #FACC00;
+  --chart-1: #00c8f0;
+  --chart-2: #ff7a05;
+  --chart-3: #7a83ff;
+  --chart-4: #ff4d50;
+  --chart-5: #facc00;
   --chart-active-dot: #000;
 }
 
@@ -32,11 +31,11 @@
   --border: oklch(0% 0 0);
   --ring: oklch(100% 0 0);
   --shadow: 4px 4px 0px 0px var(--border);
-  --chart-1: #009DBD;
-  --chart-2: #EB6D00;
-  --chart-3: #7A83FF;
-  --chart-4: #FF6669;
-  --chart-5: #E0B700;
+  --chart-1: #009dbd;
+  --chart-2: #eb6d00;
+  --chart-3: #7a83ff;
+  --chart-4: #ff6669;
+  --chart-5: #e0b700;
   --chart-active-dot: #fff;
 }
 
