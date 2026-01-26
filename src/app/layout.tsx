@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Soham Shirke | Portfolio",
   description: "Passionate Computer Engineering student building applications and exploring new technologies.",
-  metadataBase: new URL("https://yourdomain.com"),
+  metadataBase: new URL("https://portfolio-amber-eight-fyyg8bztpn.vercel.app"),
 
   openGraph: {
     title: "Soham Shirke | Portfolio",
