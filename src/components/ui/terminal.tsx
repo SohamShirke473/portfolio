@@ -166,6 +166,35 @@ const COLOR_CLASS: Record<NonNullable<OutputLine["color"]>, string> = {
 };
 
 /* ═══════════════════════════════════════════════════════════
+   LINK PARSER HELPER
+═══════════════════════════════════════════════════════════ */
+function renderTextWithLinks(text: string) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  if (parts.length === 1) return text;
+
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      const url = part.replace(/[.,;:]$/, "");
+      return (
+        <a
+          // biome-ignore lint/suspicious/noArrayIndexKey: simple split index
+          key={index}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sky-400 hover:text-emerald-400 underline transition-colors"
+          onClick={e => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
    MATRIX ANIMATION LINE
 ═══════════════════════════════════════════════════════════ */
 function MatrixLine() {
@@ -752,7 +781,7 @@ export function Terminal({
             return (
               // biome-ignore lint/suspicious/noArrayIndexKey: stable append-only log index
               <div key={i} className={cn("whitespace-pre-wrap", cls)}>
-                {line.text}
+                {renderTextWithLinks(line.text)}
               </div>
             );
           })}
