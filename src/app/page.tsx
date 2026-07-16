@@ -355,8 +355,8 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-screen overflow-hidden bg-[#0a0a0a] relative">
-      {/* ── Full-screen Terminal ─────────────────────────── */}
+    <main className="h-dvh w-screen overflow-hidden bg-[#0a0a0a] relative">
+      {/* ── Full-screen Terminal ────────────────────────────── */}
       <Terminal
         key={autoMode ? "auto" : "manual"}
         commandMap={commandMap}

@@ -58,7 +58,7 @@ export default function ProfileOverlay({ onClose }: ProfileOverlayProps) {
           className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs text-neutral-400 hover:border-neutral-500 hover:text-white transition-all"
         >
           <X className="h-3.5 w-3.5" />
-          Back to Terminal
+          <span className="hidden sm:inline">Back to Terminal</span>
         </button>
 
         {/* Header / Hero */}

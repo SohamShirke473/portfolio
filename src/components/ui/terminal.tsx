@@ -1052,9 +1052,17 @@ export function Terminal({
   /* ── Prompt ─────────────────────────────────────────── */
   const Prompt = ({ user }: { user?: string }) => (
     <span className="text-neutral-500 select-none">
-      <span className="text-sky-500">{user ?? username}</span>
-      <span className="text-emerald-600">:</span>
-      <span className="text-sky-400">~</span>
+      {/* Full prompt on md+, abbreviated on mobile */}
+      <span className="hidden sm:inline">
+        <span className="text-sky-500">{user ?? username}</span>
+        <span className="text-emerald-600">:</span>
+        <span className="text-sky-400">~</span>
+      </span>
+      <span className="sm:hidden">
+        <span className="text-sky-500">s@p</span>
+        <span className="text-emerald-600">:</span>
+        <span className="text-sky-400">~</span>
+      </span>
       <span className="text-neutral-500">$</span>{" "}
     </span>
   );
@@ -1066,31 +1074,35 @@ export function Terminal({
       className={cn("mx-auto w-full font-mono text-xs", className)}
       onClick={focusInput}
     >
-      <div className="flex h-full flex-col overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 shadow-2xl">
+      <div className="flex h-full flex-col overflow-hidden rounded-none sm:rounded-lg border-0 sm:border border-neutral-800 bg-neutral-900 shadow-2xl">
         {/* Title bar */}
-        <div className="flex shrink-0 items-center gap-2 bg-neutral-800 px-4 py-3">
-          <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-2 bg-neutral-800 px-3 py-2 sm:px-4 sm:py-3">
+          <div className="hidden sm:flex items-center gap-1.5">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
             <div className="h-3 w-3 rounded-full bg-green-500" />
           </div>
           <div className="flex-1 flex items-center justify-center gap-2">
-            <span className="text-xs text-neutral-400">{username} — bash</span>
+            <span className="text-xs text-neutral-400">
+              <span className="hidden sm:inline">{username}</span>
+              <span className="sm:hidden">terminal</span>
+              {" — bash"}
+            </span>
             {autoMode && (
               <span className="inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-amber-400 animate-pulse">
                 AUTO
               </span>
             )}
           </div>
-          <div className="w-[52px]" />
+          <div className="hidden sm:block w-[52px]" />
         </div>
 
         {/* Content */}
         <div
           ref={contentRef}
           className={cn(
-            "flex-1 overflow-y-auto p-4 leading-relaxed",
-            fullHeight ? "h-[calc(100vh-48px)]" : "h-80",
+            "flex-1 overflow-y-auto p-3 sm:p-4 leading-relaxed",
+            fullHeight ? "h-[calc(100dvh-80px)] sm:h-[calc(100dvh-48px)]" : "h-80",
           )}
         >
           {lines.map((line, i) => {
@@ -1184,7 +1196,7 @@ export function Terminal({
                   !cursorOn && "opacity-0",
                 )}
               />
-              {/* Hidden real input for keyboard capture */}
+              {/* Hidden real input for keyboard capture — works on desktop */}
               <input
                 ref={inputRef}
                 value={input}
@@ -1198,6 +1210,22 @@ export function Terminal({
                 aria-label="Terminal input"
               />
             </div>
+          )}
+
+          {/* Mobile tap-to-type bar — visible only on touch devices */}
+          {interactive && (
+            <button
+              type="button"
+              onClick={() => inputRef.current?.focus()}
+              className="sm:hidden mt-3 w-full flex items-center gap-2 rounded-md border border-neutral-700/60 bg-neutral-800/60 px-3 py-2.5 text-left text-xs text-neutral-500 active:bg-neutral-700/60 transition-colors"
+              aria-label="Tap to type a command"
+            >
+              <span className="text-emerald-400 text-[10px]">&gt;_</span>
+              <span className="flex-1 truncate">
+                {input || "tap to type a command…"}
+              </span>
+              <span className="text-[10px] text-neutral-600">⌨</span>
+            </button>
           )}
 
           {/* Idle cursor during intro pauses */}

@@ -294,8 +294,11 @@
   .float-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 16px;
+    min-height: 44px;
+    min-width: 44px;
     border-radius: 99px;
     border: 1px solid rgba(52, 211, 153, 0.35);
     background: rgba(10, 10, 10, 0.9);
@@ -316,6 +319,11 @@
       0 4px 32px rgba(0, 0, 0, 0.6),
       0 0 12px rgba(52, 211, 153, 0.15);
     transform: translateY(-1px);
+  }
+  @media (max-width: 640px) {
+    .float-btn {
+      padding: 10px 14px;
+    }
   }
 
   h1,
