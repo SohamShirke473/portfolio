@@ -16,12 +16,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Soham Shirke | Portfolio",
-  description: "Passionate Computer Engineering student building applications and exploring new technologies.",
+  description:
+    "Passionate Computer Engineering student building applications and exploring new technologies.",
   metadataBase: new URL("https://www.shirkesoham.tech"),
 
   openGraph: {
     title: "Soham Shirke | Portfolio",
-    description: "Passionate Computer Engineering student building applications and exploring new technologies.",
+    description:
+      "Passionate Computer Engineering student building applications and exploring new technologies.",
     images: ["/cover.png"],
     type: "website",
   },
@@ -29,7 +31,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Soham Shirke | Portfolio",
-    description: "Passionate Computer Engineering student building scalable applications and exploring new technologies.",
+    description:
+      "Passionate Computer Engineering student building scalable applications and exploring new technologies.",
     images: ["/cover.png"],
   },
 };

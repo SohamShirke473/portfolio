@@ -88,12 +88,7 @@
     },
     {
       "title": "Wanderlust",
-      "technologies": [
-        "TypeScript",
-        "Next.js",
-        "shadcn/ui",
-        "Tailwind CSS"
-      ],
+      "technologies": ["TypeScript", "Next.js", "shadcn/ui", "Tailwind CSS"],
       "description": "Built a modern and responsive travel website using Next.js, Tailwind CSS, Aceternity UI, and shadcn/ui, featuring smooth animations, clean layouts, and an engaging, user-friendly experience.",
       "image": null,
       "liveUrl": null,
@@ -109,26 +104,9 @@
       "JavaScript",
       "TypeScript"
     ],
-    "frameworks": [
-      "React",
-      "Next.js",
-      "Express",
-      "Node.js",
-      "FastAPI"
-    ],
-    "databases": [
-      "MongoDB",
-      "PostgreSQL",
-      "Redis"
-    ],
-    "tools": [
-      "Git",
-      "GitHub",
-      "Docker",
-      "Swagger API",
-      "Zod",
-      "BullMQ"
-    ]
+    "frameworks": ["React", "Next.js", "Express", "Node.js", "FastAPI"],
+    "databases": ["MongoDB", "PostgreSQL", "Redis"],
+    "tools": ["Git", "GitHub", "Docker", "Swagger API", "Zod", "BullMQ"]
   },
   "achievements": [
     {
