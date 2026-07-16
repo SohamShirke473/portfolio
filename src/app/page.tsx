@@ -363,8 +363,8 @@ export default function Home() {
         intro={{
           commands: introCommands,
           outputs: introOutputs,
-          typingSpeed: 30,
-          delayBetweenCommands: 700,
+          typingSpeed: 80,
+          delayBetweenCommands: 1500,
         }}
         autoCommands={autoMode ? autoTourCommands : undefined}
         username="soham@portfolio"

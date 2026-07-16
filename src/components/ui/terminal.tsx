@@ -419,11 +419,12 @@ export function Terminal({
   }, []);
 
   /* ── Auto-scroll ────────────────────────────────────── */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run scroll on input/lines change
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
     }
-  });
+  }, [lines.length, input]);
 
   /* ── Focus input on click ───────────────────────────── */
   const focusInput = useCallback(() => {
@@ -1185,7 +1186,7 @@ export function Terminal({
 
           {/* Interactive input */}
           {interactive && (
-            <div className="flex items-center whitespace-pre-wrap">
+            <div className="flex items-center whitespace-pre-wrap relative w-full">
               <Prompt />
               <span className="text-neutral-300">
                 <Highlighted text={input} />
@@ -1196,13 +1197,13 @@ export function Terminal({
                   !cursorOn && "opacity-0",
                 )}
               />
-              {/* Hidden real input for keyboard capture — works on desktop */}
+              {/* Real input overlaying the line so clicking the prompt line natively focuses it. */}
               <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                className="absolute left-0 top-0 h-full w-full opacity-0 cursor-text outline-none border-none ring-0 select-text"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
