@@ -17,28 +17,58 @@
       "location": "Bandra, Mumbai",
       "degree": "B.E Computer Engineering",
       "duration": "2024 - Expected June 2028",
-      "grade": "CGPA: 8.6"
+      "grade": "CGPA: 8.82"
     },
     {
       "institution": "Pace Junior Science College",
       "location": "Dadar, Mumbai",
-      "degree": "11th-12th",
+      "degree": "11th-12th (Science)",
       "duration": "2022 - 2024",
-      "grade": "Marks: 86%"
+      "grade": "Marks: 85.67%"
     }
   ],
   "projects": [
+    {
+      "title": "SourceMind",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "tRPC",
+        "Zod",
+        "Neon Postgres",
+        "Inngest"
+      ],
+      "description": "Built a serverless, event-driven multimodal RAG and knowledge synthesis platform that ingests PDFs, YouTube videos, scraped web pages, and images for semantic querying. Implemented vector search using Voyage AI embeddings with pgvector and HNSW indexing, and generative synthesis of mindmaps, quizzes, and podcasts via the Vercel AI SDK.",
+      "image": null,
+      "liveUrl": "https://sourcemind-navy.vercel.app",
+      "githubUrl": "https://github.com/SohamShirke473/sourcemind"
+    },
+    {
+      "title": "CodeCook",
+      "technologies": [
+        "Node.js",
+        "Express",
+        "PostgreSQL",
+        "Redis",
+        "BullMQ",
+        "Zod"
+      ],
+      "description": "Built a self-hosted, LeetCode-style competitive coding platform API supporting authentication, coding problems, playlists, leaderboards, and an admin panel. Implemented an async submission pipeline using BullMQ and Redis to queue code execution jobs offloaded to a remote Piston engine, with JWT auth, HTTP-only cookies, and auto-generated Scalar API docs.",
+      "image": null,
+      "liveUrl": "https://codecookapi.shirkesoham.tech/docs",
+      "githubUrl": "https://github.com/SohamShirke473/codecook"
+    },
     {
       "title": "Google Doc Clone",
       "technologies": [
         "TypeScript",
         "Next.js",
         "Clerk",
-        "Convex",
+        "Liveblocks",
         "Zustand"
       ],
-      "description": "Built a Google Docs–style collaborative editor using Next.js with a rich text editor, real-time multi-user collaboration, document management, authentication via Clerk, and data persistence with Convex, featuring a modern responsive UI.",
-      "image": "/Screenshot 2026-01-25 at 12.50.11 PM.png",
+      "description": "Built a Google Docs–style collaborative rich text editor in React with a dynamic, context-aware toolbar and clean, component-driven layout. Integrated Clerk for secure user sign-in, Liveblocks for real-time multi-user collaboration, and Zustand for centralized state management keeping the interface fast and responsive.",
+      "image": "/Screenshot 2026-01-25 at 12.50.11 PM.png",
       "liveUrl": "https://google-doc-clone-five.vercel.app",
       "githubUrl": null
     },
@@ -51,7 +81,7 @@
         "Redis",
         "Drizzle"
       ],
-      "description": "Built a URL Shortener API using Express.js, PostgreSQL, Redis, and Drizzle ORM, enabling fast redirection through Redis caching and reliable data persistence. Implemented JWT-based authentication with secure password hashing and full CRUD operations for URL management, demonstrating backend architecture and efficient caching strategies.",
+      "description": "Built a URL Shortener API using Express.js, PostgreSQL, Redis, and Drizzle ORM, enabling fast redirection through Redis caching and reliable data persistence. Implemented JWT-based authentication with secure password hashing and full CRUD operations for URL management.",
       "image": null,
       "liveUrl": null,
       "githubUrl": "https://github.com/SohamShirke473/URL_Shortner"
@@ -80,10 +110,11 @@
       "TypeScript"
     ],
     "frameworks": [
-      "Express",
-      "Next.js",
       "React",
-      "Node.js"
+      "Next.js",
+      "Express",
+      "Node.js",
+      "FastAPI"
     ],
     "databases": [
       "MongoDB",
@@ -93,7 +124,10 @@
     "tools": [
       "Git",
       "GitHub",
-      "Docker"
+      "Docker",
+      "Swagger API",
+      "Zod",
+      "BullMQ"
     ]
   },
   "achievements": [

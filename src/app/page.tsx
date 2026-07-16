@@ -1,382 +1,415 @@
-import {
-  Award,
-  Briefcase,
-  Code2,
-  Cpu,
-  Database,
-  ExternalLink,
-  Github,
-  GraduationCap,
-  LayoutTemplate,
-  Linkedin,
-  Mail,
-  Terminal,
-  Twitter,
-  User,
-  MapPin,
-} from "lucide-react";
-import { BentoGrid, BentoGridItem } from "@/components/BentoGrid";
-import GithubHeatmap from "@/components/GithubHeatmap";
+"use client";
+import { useState, lazy, Suspense } from "react";
+import { Terminal, type CommandHandler, type OutputLine } from "@/components/ui/terminal";
 import content from "../../content.json";
+import { UserCircle, HelpCircle, Play, Square } from "lucide-react";
 
+const ProfileOverlay = lazy(() => import("@/components/ui/profile-overlay"));
+
+const { personal, education, projects, skills, achievements } = content;
+
+/* ── Helper: format output lines ─────────────────────────── */
+function out(text: string, color?: OutputLine["color"]): OutputLine {
+  return { text, color };
+}
+const blank = (): OutputLine => ({ text: "" });
+
+/* ══════════════════════════════════════════════════════════
+   COMMAND MAP
+══════════════════════════════════════════════════════════ */
+
+// Setter for auto mode — set from inside the component and injected into commandMap
+let _setAutoMode: ((v: boolean) => void) | null = null;
+let _setShowProfile: ((v: boolean) => void) | null = null;
+
+const commandMap: Record<string, CommandHandler> = {
+
+  help: () => [
+    out(""),
+    out("  Available commands:", "green"),
+    out("  ──────────────────────────────────────────────────", "dim"),
+    out("  whoami          →  Who is Soham?", "default"),
+    out("  about           →  Longer bio", "default"),
+    out("  education       →  Academic background", "default"),
+    out("  projects        →  All projects", "default"),
+    out("  projects <name> →  Details for a specific project", "default"),
+    out("  skills          →  Tech stack", "default"),
+    out("  contact         →  Email & social links", "default"),
+    out("  open <target>   →  open github | linkedin | resume", "default"),
+    out("  cat <file>      →  cat about.txt | education.txt | skills.txt", "default"),
+    out("  ls              →  List files", "default"),
+    out("  date            →  Current date", "default"),
+    out("  clear           →  Clear the terminal  (also Ctrl+L)", "default"),
+    out("  auto            →  Start the auto tour", "default"),
+    out("  profile         →  Open the profile card view", "default"),
+    out("  ──────────────────────────────────────────────────", "dim"),
+    out("  🎮  Easter eggs  →  matrix | hack | neofetch | coffee", "amber"),
+    out("                      git log | ping | sudo rm -rf /", "amber"),
+    out("  ──────────────────────────────────────────────────", "dim"),
+    out("  Tip: ↑ ↓ history  |  Tab to autocomplete  |  Ctrl+L clear", "dim"),
+    out(""),
+  ],
+
+  whoami: () => [
+    out(""),
+    out(`  ${personal.name}`, "green"),
+    out(`  📍 ${personal.location}   ✉  ${personal.email}`),
+    out(""),
+    out(`  ${personal.about}`),
+    out(""),
+  ],
+
+  about: () => [
+    out(""),
+    out("  # About Soham Shirke", "green"),
+    out(""),
+    out(`  ${personal.about}`),
+    out(""),
+    out("  Currently studying B.E Computer Engineering at TSEC, Mumbai.", "dim"),
+    out("  CGPA: 8.82  |  Graduation: June 2028", "dim"),
+    out(""),
+    out("  Always building. Always learning. Open to collaborations.", "amber"),
+    out(""),
+  ],
+
+  education: () => [
+    out(""),
+    ...education.flatMap((e) => [
+      out(`  ┌─ ${e.institution}`, "green"),
+      out(`  │  ${e.degree}`, "default"),
+      out(`  │  ${e.location}  ·  ${e.duration}`, "dim"),
+      out(`  └─ ${e.grade}`, "amber"),
+      blank(),
+    ]),
+  ],
+
+  projects: (args) => {
+    if (args.length > 0) {
+      const query = args.join(" ").toLowerCase();
+      const match = projects.find(p => p.title.toLowerCase().includes(query));
+      if (!match) {
+        return [
+          out(""),
+          out(`  Project not found: "${args.join(" ")}"`, "red"),
+          out("  Available: " + projects.map(p => p.title).join("  |  "), "dim"),
+          out(""),
+        ];
+      }
+      const links = [
+        match.liveUrl ? `live  → ${match.liveUrl}` : null,
+        match.githubUrl ? `src   → ${match.githubUrl}` : null,
+      ].filter(Boolean) as string[];
+
+      return [
+        out(""),
+        out(`  # ${match.title}`, "green"),
+        out(`  ${match.technologies.join("  ·  ")}`, "amber"),
+        out(""),
+        out(`  ${match.description}`),
+        ...(links.length ? [blank(), ...links.map(l => out(`  ${l}`, "blue"))] : []),
+        out(""),
+      ];
+    }
+
+    return [
+      out(""),
+      out("  Projects:", "green"),
+      out(""),
+      ...projects.map((p, i) => {
+        const badge = p.liveUrl ? "🟢 live" : p.githubUrl ? "⚫ github" : "";
+        return out(`  [${String(i + 1).padStart(2, "0")}]  ${p.title.padEnd(22)}  ${badge}  →  ${p.technologies.slice(0, 3).join(", ")}`, "default");
+      }),
+      out(""),
+      out("  Tip: projects <name>  for full details", "dim"),
+      out(""),
+    ];
+  },
+
+  skills: () => {
+    const labels: Record<string, string> = {
+      programmingLanguages: "languages ",
+      frameworks:           "frameworks",
+      databases:            "databases ",
+      tools:                "tools     ",
+    };
+    return [
+      out(""),
+      out("  Tech Stack:", "green"),
+      out(""),
+      ...Object.entries(skills).map(([cat, items]) =>
+        out(`  ${labels[cat] ?? cat}  →  ${(items as string[]).join("  ·  ")}`)
+      ),
+      out(""),
+    ];
+  },
+
+  contact: () => [
+    out(""),
+    out("  Open for projects & collaborations.", "green"),
+    out(""),
+    out(`  email     →  ${personal.email}`, "default"),
+    out(`  github    →  ${personal.github}`, "blue"),
+    out(`  linkedin  →  ${personal.linkedin}`, "blue"),
+    out(`  twitter   →  ${personal.x}`, "blue"),
+    out(`  resume    →  ${personal.resumeUrl}`, "blue"),
+    out(""),
+    out("  Type 'open github' to open directly.", "dim"),
+    out(""),
+  ],
+
+  open: (args) => {
+    const target = args[0]?.toLowerCase();
+    const urlMap: Record<string, string> = {
+      github:   personal.github,
+      linkedin: personal.linkedin,
+      twitter:  personal.x,
+      resume:   personal.resumeUrl,
+    };
+    if (!target || !urlMap[target]) {
+      return [
+        out(""),
+        out("  Usage: open <github | linkedin | twitter | resume>", "red"),
+        out(""),
+      ];
+    }
+    if (typeof window !== "undefined") window.open(urlMap[target], "_blank");
+    return [
+      out(""),
+      out(`  Opening ${target}...`, "green"),
+      out(`  → ${urlMap[target]}`, "blue"),
+      out(""),
+    ];
+  },
+
+  // cat <file> — alias to known handlers
+  cat: (args) => {
+    const file = args[0]?.toLowerCase().replace(/\.\w+$/, "") ?? "";
+    const aliases: Record<string, CommandHandler> = {
+      about:        commandMap.about,
+      "about.txt":  commandMap.about,
+      education:    commandMap.education,
+      "education.txt": commandMap.education,
+      skills:       commandMap.skills,
+      "skills.txt": commandMap.skills,
+      "skills.json": commandMap.skills,
+      contact:      commandMap.contact,
+      projects:     commandMap.projects,
+    };
+    if (aliases[file]) return aliases[file]([]);
+    if (!file) return [out(""), out("  Usage: cat <about.txt | education.txt | skills.txt>", "red"), out("")];
+    return [
+      out(""),
+      out(`  cat: ${args[0]}: No such file or directory`, "red"),
+      out("  Try: cat about.txt | cat education.txt | cat skills.txt", "dim"),
+      out(""),
+    ];
+  },
+
+  achievements: () => [
+    out(""),
+    out("  Achievements:", "green"),
+    out(""),
+    ...achievements.map(a => [
+      out(`  ✔  ${a.title}`, "green"),
+      out(`     ${a.description}`, "dim"),
+      blank(),
+    ]).flat(),
+  ],
+
+  ls: (args) => {
+    const dir = args[0]?.toLowerCase() ?? "";
+    if (dir.includes("project")) {
+      return [
+        out(""),
+        ...projects.map(p =>
+          out(`  -rw-r--r--  projects/${p.title.toLowerCase().replace(/\s+/g, "-")}.md`, "green")
+        ),
+        out(""),
+      ];
+    }
+    return [
+      out(""),
+      out("  drwxr-xr-x  projects/", "green"),
+      out("  drwxr-xr-x  skills/", "green"),
+      out("  drwxr-xr-x  education/", "green"),
+      out("  drwxr-xr-x  achievements/", "green"),
+      out("  -rw-r--r--  resume.pdf", "amber"),
+      out("  -rw-r--r--  about.txt", "default"),
+      out("  -rw-r--r--  education.txt", "default"),
+      out("  -rw-r--r--  skills.txt", "default"),
+      out(""),
+    ];
+  },
+
+  date: () => [
+    out(""),
+    out(`  ${new Date().toString()}`, "dim"),
+    out(""),
+  ],
+
+  // Trigger auto tour from inside the terminal
+  auto: () => {
+    setTimeout(() => _setAutoMode?.(true), 100);
+    return [
+      out(""),
+      out("  Starting Auto Tour...", "green"),
+      out("  Press any key at any time to take control.", "dim"),
+      out(""),
+    ];
+  },
+
+  // Open profile overlay from inside the terminal
+  profile: () => {
+    setTimeout(() => _setShowProfile?.(true), 100);
+    return [
+      out(""),
+      out("  Opening profile view...", "green"),
+      out(""),
+    ];
+  },
+
+  // history is handled inside terminal.tsx but we add an alias here
+  history: () => [
+    out(""),
+    out("  (Use ↑ ↓ arrow keys to cycle through command history)", "dim"),
+    out(""),
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   INTRO SEQUENCE
+══════════════════════════════════════════════════════════ */
+const introCommands = ["whoami", "ls -la projects/", "cat about.txt"];
+const introOutputs: Record<number, string[]> = {
+  0: [
+    `  ${personal.name}`,
+    `  📍 ${personal.location}   ✉  ${personal.email}`,
+  ],
+  1: [
+    "",
+    ...projects.map((p, i) => `  [${String(i + 1).padStart(2, "0")}]  ${p.title}`),
+    "",
+  ],
+  2: [
+    "",
+    `  ${personal.about}`,
+    "",
+    "  Type 'help' to see all commands.",
+    "  Or press ▶ Auto Tour for a hands-free walkthrough.",
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   AUTO TOUR — curated command showcase
+══════════════════════════════════════════════════════════ */
+const autoTourCommands = [
+  "neofetch",
+  "whoami",
+  "education",
+  "projects",
+  "projects sourcemind",
+  "projects codecook",
+  "skills",
+  "achievements",
+  "coffee",
+  "contact",
+];
+
+/* ══════════════════════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════════════════════ */
 export default function Home() {
-  const { personal, education, projects, skills, achievements } = content;
+  const [showProfile, setShowProfile] = useState(false);
+  const [showHint, setShowHint] = useState(true);
+  const [autoMode, setAutoMode] = useState(false);
 
-  const googleDoc = projects.find((p) => p.title.includes("Google"));
-  const urlShortener = projects.find((p) => p.title.includes("URL"));
-  const wanderlust = projects.find((p) => p.title.includes("Wanderlust"));
+  // Inject setters so commandMap handlers can trigger UI state
+  _setAutoMode = setAutoMode;
+  _setShowProfile = setShowProfile;
+
+  const startAutoTour = () => {
+    setAutoMode(true);
+    setShowHint(false);
+  };
+
+  const stopAutoTour = () => {
+    setAutoMode(false);
+  };
 
   return (
-    <main className="min-h-screen bg-background p-8 md:p-16 font-base animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto">
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Top Section: Soham (Left, Thinner), About & Education (Right, Wide, Stacked) */}
-        <BentoGrid className="md:grid-cols-3">
-          {/* Thinner Left Box: Personal Info (Soham Shirke) */}
-          <BentoGridItem
-            title={personal.name}
-            description={
-              <div className="flex flex-col gap-2 mt-2">
-                <div className="flex items-center gap-2 text-sm font-bold opacity-70">
-                  <MapPin className="w-4 h-4" />
-                  {personal.location}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={personal.resumeUrl}
-                    target="_blank"
-                    className="px-3 py-1.5 border-2 border-black bg-main font-heading text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                  >
-                    RESUME
-                  </a>
-                  <div className="flex gap-2">
-                    <a
-                      href={personal.github}
-                      target="_blank"
-                      className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                    >
-                      <Github className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={personal.linkedin}
-                      target="_blank"
-                      className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                    >
-                      <Linkedin className="w-4 h-4" />
-                    </a>
-                    {personal.x && (
-                      <a
-                        href={personal.x}
-                        target="_blank"
-                        className="p-1 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                      >
-                        <Twitter className="w-4 h-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            }
-            header={
-              <div className="flex-1 w-full h-full min-h-[8rem] rounded-none bg-white border-2 border-black flex items-center justify-center relative overflow-hidden group">
-                {personal.profileImage ? (
-                  <img
-                    src={personal.profileImage}
-                    alt={personal.name}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                    <User className="w-12 h-12 text-gray-400" />
-                  </div>
-                )}
-              </div>
-            }
-            className="md:col-span-1 md:row-span-2"
-          />
+    <main className="h-screen w-screen overflow-hidden bg-[#0a0a0a] relative">
 
-          {/* Wider Top Right Box: About Me */}
-          <BentoGridItem
-            title="About Me"
-            description={personal.about}
-            header={
-              <div className="flex-1 w-full h-full min-h-[4rem] rounded-none bg-chart-5 border-2 border-black flex items-center justify-center">
-                <User className="w-10 h-10 text-black" />
-              </div>
-            }
-            className="md:col-span-2 md:row-span-1"
-          />
+      {/* ── Full-screen Terminal ─────────────────────────── */}
+      <Terminal
+        key={autoMode ? "auto" : "manual"}
+        commandMap={commandMap}
+        intro={{
+          commands: introCommands,
+          outputs: introOutputs,
+          typingSpeed: 30,
+          delayBetweenCommands: 700,
+        }}
+        autoCommands={autoMode ? autoTourCommands : undefined}
+        username="soham@portfolio"
+        fullHeight
+        className="h-full max-w-full px-0"
+      />
 
-          {/* Wider Bottom Right Box: Education */}
-          <BentoGridItem
-            title="Education"
-            description={
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[12rem] overflow-y-auto pr-2 custom-scrollbar">
-                {education.map((edu) => (
-                  <div
-                    key={edu.institution}
-                    className="border-l-4 border-black pl-3 py-1"
-                  >
-                    <p className="font-heading text-base leading-tight uppercase">
-                      {edu.institution}
-                    </p>
-                    <p className="text-sm font-medium text-black/80">
-                      {edu.degree}
-                    </p>
-                    <p className="text-xs text-black/60 font-bold">
-                      {edu.duration} | {edu.grade}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            }
-            header={
-              <div className="flex-1 w-full h-full min-h-[3rem] rounded-none bg-chart-1 border-2 border-black flex items-center justify-center">
-                <GraduationCap className="w-8 h-8 text-black" />
-              </div>
-            }
-            className="md:col-span-2 md:row-span-1"
-          />
-        </BentoGrid>
+      {/* ── Floating buttons (bottom-right) ─────────────── */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
 
-        <h2 className="text-5xl font-heading uppercase py-4 border-b-4 border-black">
-          Projects
-        </h2>
-
-        {/* Projects Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {projects.map((project, idx) =>
-            idx === 0 ? (
-              /* Featured Project (First Item) */
-              <div
-                key={project.title}
-                className="md:col-span-2 border-2 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col md:flex-row gap-8 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition duration-200 overflow-hidden group"
-              >
-                <div className="flex-1 border-2 border-black bg-main min-h-[16rem] flex items-center justify-center overflow-hidden relative">
-                  {project.image ? (
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
-                    />
-                  ) : (
-                    <>
-                      <Code2 className="w-24 h-24 text-black" />
-                      <span className="absolute text-xs font-black uppercase tracking-widest opacity-20 rotate-45 scale-150">
-                        Full Stack Project
-                      </span>
-                    </>
-                  )}
-                </div>
-                <div className="flex-1 flex flex-col justify-center space-y-4">
-                  <h3 className="text-4xl font-heading uppercase">
-                    {project.title}
-                  </h3>
-                  <p className="text-xl leading-relaxed text-black/80 font-medium">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 text-xs font-bold border-2 border-black bg-chart-1 uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-default"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-4 pt-4">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        className="p-3 border-2 border-black bg-white hover:bg-main transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-                      >
-                        <Github className="w-5 h-5" />
-                      </a>
-                    )}
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        className="p-3 border-2 border-black bg-white hover:bg-main transition shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Standard Projects */
-              <BentoGridItem
-                key={project.title}
-                title={project.title}
-                description={
-                  <div className="flex flex-col gap-4">
-                    <span className="line-clamp-3">{project.description}</span>
-                    <div className="flex flex-wrap gap-2 mt-auto">
-                      {project.technologies.map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-1 text-[10px] font-bold border-2 border-black bg-chart-2 uppercase shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                }
-                header={
-                  <div className="flex-1 w-full h-full min-h-[10rem] rounded-none bg-chart-4 border-2 border-black flex items-center justify-center overflow-hidden group">
-                    {project.image ? (
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
-                      />
-                    ) : (
-                      <Code2 className="w-16 h-16 text-black/20 group-hover:text-black transition-colors" />
-                    )}
-                  </div>
-                }
-                icon={
-                  <div className="flex gap-3">
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        className="p-2 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                      >
-                        <Github className="w-4 h-4" />
-                      </a>
-                    )}
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        className="p-2 border-2 border-black bg-white hover:bg-main transition shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px]"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                  </div>
-                }
-              />
-            ),
-          )}
-        </div>
-
-        <h2 className="text-5xl font-heading uppercase py-4 border-b-4 border-black">
-          Skills & More
-        </h2>
-
-        <BentoGrid className="lg:grid-cols-3">
-          {/* Dynamic Skills Categories */}
-          {Object.entries(skills).map(([category, items], idx) => {
-            const icons = {
-              programmingLanguages: <Code2 className="w-10 h-10 text-black" />,
-              frameworks: <LayoutTemplate className="w-10 h-10 text-black" />,
-              databases: <Database className="w-10 h-10 text-black" />,
-              tools: <Terminal className="w-10 h-10 text-black" />,
-            };
-            const colors = [
-              "bg-chart-1",
-              "bg-chart-2",
-              "bg-chart-3",
-              "bg-chart-5",
-            ];
-            const titles = {
-              programmingLanguages: "Languages",
-              frameworks: "Frameworks",
-              databases: "Databases",
-              tools: "Tools",
-            };
-
-            return (
-              <BentoGridItem
-                key={category}
-                title={titles[category as keyof typeof titles] || category}
-                description={
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {items.map((skill: string) => (
-                      <span
-                        key={skill}
-                        className={`px-3 py-1 border-2 border-black ${colors[idx % colors.length]} text-sm font-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] uppercase hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all cursor-default`}
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                }
-                header={
-                  <div
-                    className={`flex-1 w-full h-full min-h-[6rem] rounded-none ${colors[(idx + 2) % colors.length]} border-2 border-black flex items-center justify-center`}
-                  >
-                    {icons[category as keyof typeof icons] || (
-                      <Cpu className="w-10 h-10 text-black" />
-                    )}
-                  </div>
-                }
-                className={idx === 0 ? "md:col-span-1" : "md:col-span-1"}
-              />
-            );
-          })}
-
-          <BentoGridItem
-            title="Achievements"
-            description={
-              <ul className="space-y-4">
-                {achievements.map((ach) => (
-                  <li
-                    key={ach.title}
-                    className="border-l-4 border-black pl-4 py-2 hover:bg-black/5 transition-colors"
-                  >
-                    <p className="font-heading text-lg leading-tight mb-1 uppercase">
-                      {ach.title}
-                    </p>
-                    <p className="text-base font-medium leading-relaxed text-black/80">
-                      {ach.description}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            }
-            header={
-              <div className="flex-1 w-full h-full min-h-[6rem] rounded-none bg-chart-4 border-2 border-black flex items-center justify-center">
-                <Award className="w-12 h-12 text-black" />
-              </div>
-            }
-            className="md:col-span-1" // Adjusted to fit grid
-          />
-
-          <BentoGridItem
-            title="Let's Connect"
-            description="Open for projects and collaborations. Feel free to reach out via email or socials!"
-            header={
-              <div className="flex-1 w-full h-full min-h-[6rem] rounded-none bg-chart-3 border-2 border-black flex items-center justify-center overflow-hidden">
-                <div className="animate-bounce">
-                  <Mail className="w-12 h-12 text-black" />
-                </div>
-              </div>
-            }
-            className="md:col-span-1" // Adjusted to fit grid flow
-            href={`mailto:${personal.email}`}
-          />
-
-          {/* GitHub Heatmap */}
-          <div className="md:col-span-3 border-2 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all overflow-hidden group">
-            <GithubHeatmap username={personal.github.split("/").pop() || "SohamShirke473"} />
+        {/* Help hint bubble */}
+        {showHint && (
+          <div className="flex items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900/95 px-4 py-2 text-xs text-neutral-400 backdrop-blur-sm shadow-lg animate-bounce">
+            <HelpCircle className="h-3.5 w-3.5 text-emerald-400" />
+            Type <span className="text-emerald-400 font-mono mx-1">help</span> or press
+            <span className="text-amber-400 font-mono mx-1">Auto Tour</span>
+            <button
+              type="button"
+              onClick={() => setShowHint(false)}
+              className="ml-1 text-neutral-600 hover:text-neutral-400 transition-colors"
+              aria-label="Dismiss hint"
+            >
+              ✕
+            </button>
           </div>
-        </BentoGrid>
+        )}
 
-        <footer className="text-center py-16 border-t-4 border-black">
-          <p className="font-heading text-xl uppercase font-black">
-            &copy; {new Date().getFullYear()} {personal.name}
-          </p>
-        </footer>
+        <div className="flex items-center gap-2">
+          {/* Auto Tour button */}
+          <button
+            type="button"
+            onClick={autoMode ? stopAutoTour : startAutoTour}
+            className={`float-btn transition-all ${
+              autoMode
+                ? "border-amber-500/50 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                : ""
+            }`}
+          >
+            {autoMode
+              ? <><Square className="h-3.5 w-3.5" /> Stop Tour</>
+              : <><Play  className="h-3.5 w-3.5" /> Auto Tour</>
+            }
+          </button>
+
+          {/* View Profile button */}
+          <button
+            type="button"
+            onClick={() => { setShowProfile(true); setShowHint(false); }}
+            className="float-btn"
+          >
+            <UserCircle className="h-4 w-4" />
+            View Profile
+          </button>
+        </div>
       </div>
+
+      {/* ── Profile Overlay ──────────────────────────────── */}
+      {showProfile && (
+        <Suspense fallback={null}>
+          <ProfileOverlay onClose={() => setShowProfile(false)} />
+        </Suspense>
+      )}
     </main>
   );
 }
